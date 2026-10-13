@@ -31,7 +31,10 @@ struct ContentView: View {
                     }
                     .pickerStyle(.segmented)
                     if tipo == .cobertura {
-                        DatePicker("Turno", selection: $fechaTurno)
+                        DatePicker("Fecha del turno", selection: $fechaTurno,
+                                   in: Calendar.current.startOfDay(for: .now)..., displayedComponents: .date)
+                            .datePickerStyle(.graphical)
+                        DatePicker("Hora de inicio", selection: $fechaTurno, displayedComponents: .hourAndMinute)
                     }
                     Picker("Urgencia", selection: $urgenciaManual) {
                         Text("Automática: \(nombre(urgenciaAuto))").tag(Urgencia?.none)
