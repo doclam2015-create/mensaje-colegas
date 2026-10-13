@@ -126,9 +126,28 @@ function horasExtras(cuerpo){
   return cuerpo.split('\n').map(function(l){
     var m = re.exec(l); if (!m) return l;
     var antes = l.slice(0, m.index), despues = l.slice(m.index + m[0].length);
-    if (antes.indexOf('*') >= 0 && despues.indexOf('*') >= 0) return l;
+    if ((antes.match(/\*/g) || []).length % 2 === 1) return l;
     if (m[0].charAt(0) === '*' && m[0].charAt(m[0].length - 1) === '*') return l;
     return antes + '*' + m[1] + '*' + despues;
+  }).join('\n');
+}
+// el turno que corresponde (día, fecha, horario) va en negrita
+var MES = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre';
+var DIA = 'lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo';
+var HORA = '\\d{1,2}(?::\\d{2})?', SUF = '(?:\\s*(?:h|hrs|horas))?';
+var CORE = ['turno\\s+(?:de\\s+)?(?:d[ií]a|noche|largo|diurno|nocturno|ma[ñn]ana|tarde)',
+  '(?:' + DIA + ')(?:\\s+\\d{1,2})?(?:\\s+de\\s+(?:' + MES + '))?',
+  '\\d{1,2}\\s+de\\s+(?:' + MES + ')',
+  '\\d{1,2}/\\d{1,2}(?:/\\d{2,4})?',
+  '(?:de\\s+)?(?:las\\s+)?' + HORA + '\\s*(?:a|-|–)\\s*(?:las\\s+)?' + HORA + SUF,
+  '\\d{1,2}:\\d{2}' + SUF].join('|');
+function negritaTurno(cuerpo){
+  var re = new RegExp('(^|[^a-z0-9áéíóúüñ*])(' + CORE + ')(?![a-z0-9áéíóúüñ])', 'gi');
+  return cuerpo.split('\n').map(function(l){
+    return l.replace(re, function(m, pre, x, off){
+      if ((l.slice(0, off + pre.length).match(/\*/g) || []).length % 2 === 1) return m;
+      return pre + '*' + x + '*';
+    });
   }).join('\n');
 }
 function limpiar(t){
@@ -138,7 +157,7 @@ function limpiar(t){
 }
 function armar(){
   var c = limpiar($('cuerpo').value);
-  if (tipo === 'cob') c = horasExtras(c);
+  if (tipo === 'cob') c = horasExtras(negritaTurno(c));
   return encabezado(urgencia()) + '\n\n' + c;
 }
 
@@ -265,7 +284,7 @@ $('cuerpo').value = leer('cuerpo') || '';
 refrescar();
 
 // expuesto solo para pruebas
-window.__mc = { encabezado:encabezado, urgenciaCobertura:urgenciaCobertura, horasExtras:horasExtras, limpiar:limpiar, corregir:corregir };
+window.__mc = { encabezado:encabezado, urgenciaCobertura:urgenciaCobertura, horasExtras:horasExtras, negritaTurno:negritaTurno, limpiar:limpiar, corregir:corregir };
 }());
 </script>
 </body>

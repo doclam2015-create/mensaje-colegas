@@ -44,7 +44,7 @@ enum Redactor {
             prompt += "Fecha del turno: \(f.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute().locale(Locale(identifier: "es_CL")))).\n"
         }
         if tipo == .cobertura {
-            prompt += "Indica que los turnos son *con pago de horas extras* (en negrita).\n"
+            prompt += "Indica que los turnos son *con pago de horas extras* (en negrita). Escribe en negrita el turno que corresponde: día, fecha y horario.\n"
         }
         prompt += "Lo que quiero comunicar:\n\(borrador)"
         return try await session.respond(to: prompt, generating: Redaccion.self).content

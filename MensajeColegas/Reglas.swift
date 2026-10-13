@@ -59,9 +59,40 @@ enum Reglas {
         return cuerpo.components(separatedBy: "\n").map { linea in
             guard let r = linea.range(of: patron, options: [.regularExpression, .caseInsensitive]) else { return linea }
             // ya está dentro de una negrita (*... pago de horas extras ...*): no tocar
-            if linea[..<r.lowerBound].contains("*") && linea[r.upperBound...].contains("*") { return linea }
+            if linea[..<r.lowerBound].filter({ $0 == "*" }).count % 2 == 1 { return linea }
             if linea[r].hasPrefix("*") && linea[r].hasSuffix("*") { return linea }
             return linea.replacingCharacters(in: r, with: "*" + linea[r].trimmingCharacters(in: ["*"]) + "*")
+        }.joined(separator: "\n")
+    }
+
+    /// Día, fecha y horario del turno: "jueves 15", "15 de octubre", "15/10", "de 20:00 a 08:00 horas", "turno de noche".
+    static let patronTurno: String = {
+        let mes = "enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre"
+        let dia = "lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo"
+        let hora = #"\d{1,2}(?::\d{2})?"#
+        let suf = #"(?:\s*(?:h|hrs|horas))?"#
+        let core = [
+            #"turno\s+(?:de\s+)?(?:d[ií]a|noche|largo|diurno|nocturno|ma[ñn]ana|tarde)"#,
+            #"(?:\#(dia))(?:\s+\d{1,2})?(?:\s+de\s+(?:\#(mes)))?"#,
+            #"\d{1,2}\s+de\s+(?:\#(mes))"#,
+            #"\d{1,2}/\d{1,2}(?:/\d{2,4})?"#,
+            #"(?:de\s+)?(?:las\s+)?\#(hora)\s*(?:a|-|–)\s*(?:las\s+)?\#(hora)\#(suf)"#,
+            #"\d{1,2}:\d{2}\#(suf)"#,
+        ].joined(separator: "|")
+        return #"(?<![\p{L}\d*])(?:"# + core + #")(?![\p{L}\d])"#
+    }()
+
+    /// En cobertura de turnos, el turno que corresponde va en negrita.
+    static func negritaTurno(_ cuerpo: String) -> String {
+        let re = try! NSRegularExpression(pattern: patronTurno, options: [.caseInsensitive])
+        return cuerpo.components(separatedBy: "\n").map { linea in
+            let ns = NSMutableString(string: linea)
+            for m in re.matches(in: linea, range: NSRange(location: 0, length: ns.length)).reversed() {
+                let antes = ns.substring(to: m.range.location)
+                if antes.filter({ $0 == "*" }).count % 2 == 1 { continue } // ya está dentro de una negrita
+                ns.replaceCharacters(in: m.range, with: "*" + ns.substring(with: m.range) + "*")
+            }
+            return ns as String
         }.joined(separator: "\n")
     }
 

@@ -19,7 +19,7 @@ struct ContentView: View {
     }
     private var urgencia: Urgencia { urgenciaManual ?? urgenciaAuto }
     private var mensaje: String {
-        Reglas.mensaje(urgencia: urgencia, cuerpo: tipo == .cobertura ? Reglas.horasExtras(cuerpo) : cuerpo)
+        Reglas.mensaje(urgencia: urgencia, cuerpo: tipo == .cobertura ? Reglas.horasExtras(Reglas.negritaTurno(cuerpo)) : cuerpo)
     }
 
     var body: some View {
