@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var error: String?
     @State private var copiado = false
     @FocusState private var foco: Bool
+    @State private var verAyuda = false
     @Environment(\.openURL) private var openURL
 
     private var urgenciaAuto: Urgencia {
@@ -100,8 +101,17 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("Mensaje Colegas")
+            .sheet(isPresented: $verAyuda) {
+                NavigationStack {
+                    AyudaMensajeColegas()
+                        .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Cerrar") { verAyuda = false } } }
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .keyboard) { Button("Listo") { foco = false } }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Ayuda", systemImage: "questionmark.circle") { verAyuda = true }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Nuevo", systemImage: "square.and.pencil") {
                         borrador = ""; cuerpo = ""; error = nil; urgenciaManual = nil; urgenciaIA = .sin

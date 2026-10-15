@@ -51,6 +51,8 @@ textarea{min-height:120px;resize:vertical;line-height:1.4}
 .head{font-size:18px;font-weight:700;margin-top:12px}
 .hint{font-size:13px;color:var(--muted);margin-top:6px}
 .btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:700;font-family:inherit;color:#fff;background-color:var(--accent);margin-top:10px;-webkit-user-select:none;user-select:none}
+.ayuda summary{font-weight:700;cursor:pointer;color:var(--accent)}.ayuda h3{font-size:15px;margin:12px 0 2px}.ayuda p,.ayuda li{font-size:14.5px;line-height:1.45;color:var(--text)}.ayuda ol{padding-left:20px;margin:4px 0}
+.hbtn{margin-left:auto;border:1px solid var(--border);background-color:var(--surface);color:var(--text);border-radius:50%;width:32px;height:32px;font-size:16px;font-weight:700;margin-right:8px}
 .btn.sec{background-color:var(--bg);color:var(--text);border:1px solid var(--border)}
 .btn:active{opacity:.7}
 .wa{background-color:var(--wa);color:var(--watext);border-radius:10px;padding:10px 12px;white-space:pre-wrap;word-wrap:break-word;font-size:15px;line-height:1.4}
@@ -66,6 +68,7 @@ textarea{min-height:120px;resize:vertical;line-height:1.4}
 <div class="wrap">
   <div class="header">
     <div class="brand"><h1>Mensaje Colegas<span>.</span></h1><div class="sub">WhatsApp para el equipo médico</div></div>
+    <button class="hbtn" id="btnAyuda" title="Ayuda" aria-label="Ayuda">?</button>
     <div class="theme-wrap"><span class="t-icon">&#9728;</span><div class="theme-track" id="themeTrack"><div class="theme-thumb"></div></div><span class="t-icon">&#9790;</span></div>
   </div>
 
@@ -98,6 +101,20 @@ textarea{min-height:120px;resize:vertical;line-height:1.4}
     <button class="btn sec" id="btnShare">Elegir app (WhatsApp Business, otra)…</button>
     <div class="hint">WhatsApp se abre con el mensaje listo; ahí eliges el chat o grupo.</div>
   </div>
+
+  <details class="card ayuda" id="ayuda">
+    <summary>Ayuda: cómo se usa</summary>
+    <p>Mensaje Colegas arma mensajes de WhatsApp para los médicos del servicio con el encabezado de urgencia correcto.</p>
+    <h3>1. Tipo de mensaje</h3>
+    <p>«Cobertura de turnos» para pedir reemplazos; «Otro mensaje» para cualquier otro aviso.</p>
+    <h3>2. Fecha, hora y urgencia</h3>
+    <p>En cobertura, elige el día en el calendario y la hora de inicio. La urgencia se calcula sola: Alta (menos de 72 h), Moderada (3 a 7 días) o Sin urgencia (más de 7 días). Puedes cambiarla en «Urgencia».</p>
+    <h3>3. Cuerpo del mensaje</h3>
+    <ol><li>Escribe lo que quieres comunicar.</li><li>«Corregir texto» arregla mayúsculas, espacios, puntuación y tildes frecuentes.</li><li>«Armar mensaje» crea la vista previa.</li></ol>
+    <h3>4. Enviar</h3>
+    <p>Revisa la «Vista previa en WhatsApp» (el turno y las horas extras quedan en negrita). «Copiar mensaje» lo deja en el portapapeles, «Pegar en WhatsApp» abre WhatsApp con el texto listo y «Elegir app» sirve para WhatsApp Business u otra.</p>
+    <p>El interruptor ☀/☾ de arriba cambia entre modo claro y oscuro.</p>
+  </details>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -286,6 +303,7 @@ for (var i = 0; i < segBtns.length; i++) segBtns[i].addEventListener('click', fu
 });
 ['selHora','selUrg'].forEach(function(id){ $(id).addEventListener('change', refrescar); });
 $('cuerpo').addEventListener('input', refrescar);
+$('btnAyuda').addEventListener('click', function(){ var d = $('ayuda'); d.open = true; d.scrollIntoView({behavior:'smooth'}); });
 $('btnCorregir').addEventListener('click', function(){
   if (!$('cuerpo').value.replace(/\s/g, '')) { toast('Escribe el cuerpo primero'); return; }
   $('cuerpo').value = corregir($('cuerpo').value); refrescar(); toast('Texto corregido');
